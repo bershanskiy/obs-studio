@@ -127,21 +127,26 @@ static void v4l2_prep_obs_frame(struct v4l2_data *data,
 	case V4L2_PIX_FMT_NV12:
 		frame->linesize[0] = data->linesize;
 		frame->linesize[1] = data->linesize;
-		plane_offsets[1] = data->linesize * data->height;
+		plane_offsets[1] =
+			(size_t)data->linesize * (size_t)data->height;
 		break;
 	case V4L2_PIX_FMT_YVU420:
 		frame->linesize[0] = data->linesize;
 		frame->linesize[1] = data->linesize / 2;
 		frame->linesize[2] = data->linesize / 2;
-		plane_offsets[1] = data->linesize * data->height * 5 / 4;
-		plane_offsets[2] = data->linesize * data->height;
+		plane_offsets[1] =
+			(size_t)data->linesize * (size_t)data->height * 5 / 4;
+		plane_offsets[2] =
+			(size_t)data->linesize * (size_t)data->height;
 		break;
 	case V4L2_PIX_FMT_YUV420:
 		frame->linesize[0] = data->linesize;
 		frame->linesize[1] = data->linesize / 2;
 		frame->linesize[2] = data->linesize / 2;
-		plane_offsets[1] = data->linesize * data->height;
-		plane_offsets[2] = data->linesize * data->height * 5 / 4;
+		plane_offsets[1] =
+			(size_t)data->linesize * (size_t)data->height;
+		plane_offsets[2] =
+			(size_t)data->linesize * (size_t)data->height * 5 / 4;
 		break;
 	default:
 		frame->linesize[0] = data->linesize;
