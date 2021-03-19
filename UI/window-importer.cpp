@@ -556,7 +556,7 @@ void OBSImporter::importCollections()
 	setEnabled(false);
 
 	char dst[512];
-	GetConfigPath(dst, 512, "obs-studio/basic/scenes/");
+	GetConfigPath(dst, 512, "light-studio/obs-studio/basic/scenes/");
 
 	for (int i = 0; i < optionsModel->rowCount() - 1; i++) {
 		int selected = optionsModel->index(i, ImporterColumn::Selected)
