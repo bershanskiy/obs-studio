@@ -91,7 +91,8 @@ void OBSLogViewer::InitLog()
 	char logDir[512];
 	std::string path;
 
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs")) {
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  "light-studio/obs-studio/logs")) {
 		path += logDir;
 		path += "/";
 		path += App()->GetCurrentLog();
@@ -155,7 +156,8 @@ void OBSLogViewer::ClearText()
 void OBSLogViewer::OpenFile()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  "light-studio/obs-studio/logs") <= 0)
 		return;
 
 	const char *log = App()->GetCurrentLog();

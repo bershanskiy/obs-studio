@@ -37,7 +37,7 @@ void EnumProfiles(std::function<bool(const char *, const char *)> &&cb)
 	os_glob_t *glob;
 
 	int ret = GetConfigPath(path, sizeof(path),
-				"obs-studio/basic/profiles/*");
+				"light-studio/obs-studio/basic/profiles/*");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
@@ -137,7 +137,8 @@ static bool GetProfileName(QWidget *parent, std::string &name,
 		return false;
 	}
 
-	ret = GetConfigPath(path, sizeof(path), "obs-studio/basic/profiles/");
+	ret = GetConfigPath(path, sizeof(path),
+			    "light-studio/obs-studio/basic/profiles/");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -162,7 +163,8 @@ static bool CopyProfile(const char *fromPartial, const char *to)
 	char dir[512];
 	int ret;
 
-	ret = GetConfigPath(dir, sizeof(dir), "obs-studio/basic/profiles/");
+	ret = GetConfigPath(dir, sizeof(dir),
+			    "light-studio/obs-studio/basic/profiles/");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -222,7 +224,7 @@ bool OBSBasic::AddProfile(bool create_new, const char *title, const char *text,
 
 	char baseDir[512];
 	int ret = GetConfigPath(baseDir, sizeof(baseDir),
-				"obs-studio/basic/profiles/");
+				"light-studio/obs-studio/basic/profiles/");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -300,7 +302,8 @@ void OBSBasic::DeleteProfile(const char *profileName, const char *profileDir)
 	char profilePath[512];
 	char basePath[512];
 
-	int ret = GetConfigPath(basePath, 512, "obs-studio/basic/profiles");
+	int ret = GetConfigPath(basePath, 512,
+				"light-studio/obs-studio/basic/profiles");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
@@ -520,7 +523,8 @@ void OBSBasic::on_actionImportProfile_triggered()
 
 	QString home = QDir::homePath();
 
-	int ret = GetConfigPath(path, 512, "obs-studio/basic/profiles/");
+	int ret = GetConfigPath(path, 512,
+				"light-studio/obs-studio/basic/profiles/");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
 		return;
@@ -566,7 +570,8 @@ void OBSBasic::on_actionExportProfile_triggered()
 	QString currentProfile = QString::fromUtf8(config_get_string(
 		App()->GlobalConfig(), "Basic", "ProfileDir"));
 
-	int ret = GetConfigPath(path, 512, "obs-studio/basic/profiles/");
+	int ret = GetConfigPath(path, 512,
+				"light-studio/obs-studio/basic/profiles/");
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
 		return;
