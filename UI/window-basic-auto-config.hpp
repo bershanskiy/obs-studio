@@ -66,6 +66,7 @@ class AutoConfig : public QWizard {
 
 	AutoConfigStreamPage *streamPage = nullptr;
 
+	bool setupLightboard = false;
 	Service service = Service::Other;
 	Quality recordingQuality = Quality::Stream;
 	Encoder recordingEncoder = Encoder::Stream;
@@ -139,6 +140,7 @@ public:
 public slots:
 	void on_prioritizeStreaming_clicked();
 	void on_prioritizeRecording_clicked();
+	void SetupLightboardToggle();
 	void PrioritizeVCam();
 };
 
