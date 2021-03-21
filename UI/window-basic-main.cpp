@@ -82,8 +82,7 @@
 #include <obs-nix-platform.h>
 #endif
 
-using namespace json11;
-using namespace std;
+using json11::Json;
 
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>
@@ -103,7 +102,7 @@ namespace {
 
 template<typename OBSRef> struct SignalContainer {
 	OBSRef ref;
-	vector<shared_ptr<OBSSignal>> handlers;
+	std::vector<std::shared_ptr<OBSSignal>> handlers;
 };
 }
 
@@ -143,7 +142,7 @@ static void AddExtraModulePaths()
 	char *plugins_path = getenv("OBS_PLUGINS_PATH");
 	char *plugins_data_path = getenv("OBS_PLUGINS_DATA_PATH");
 	if (plugins_path && plugins_data_path) {
-		string data_path_with_module_suffix;
+		std::string data_path_with_module_suffix;
 		data_path_with_module_suffix += plugins_data_path;
 		data_path_with_module_suffix += "/%module%";
 		obs_add_module_path(plugins_path,
@@ -152,24 +151,25 @@ static void AddExtraModulePaths()
 
 	char base_module_dir[512];
 #if defined(_WIN32) || defined(__APPLE__)
-	int ret = GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
-				     "obs-studio/plugins/%module%");
+	int ret =
+		GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
+				   "light-studio/obs-studio/plugins/%module%");
 #else
 	int ret = GetConfigPath(base_module_dir, sizeof(base_module_dir),
-				"obs-studio/plugins/%module%");
+				"light-studio/obs-studio/plugins/%module%");
 #endif
 
 	if (ret <= 0)
 		return;
 
-	string path = base_module_dir;
+	std::string path = base_module_dir;
 #if defined(__APPLE__)
 	obs_add_module_path((path + "/bin").c_str(), (path + "/data").c_str());
 
-	BPtr<char> config_bin =
-		os_get_config_path_ptr("obs-studio/plugins/%module%/bin");
-	BPtr<char> config_data =
-		os_get_config_path_ptr("obs-studio/plugins/%module%/data");
+	BPtr<char> config_bin = os_get_config_path_ptr(
+		"light-studio/obs-studio/plugins/%module%/bin");
+	BPtr<char> config_data = os_get_config_path_ptr(
+		"light-studio/obs-studio/plugins/%module%/data");
 	obs_add_module_path(config_bin, config_data);
 
 #elif ARCH_BITS == 64
@@ -295,7 +295,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	shortcutFilter = CreateShortcutFilter();
 	installEventFilter(shortcutFilter);
 
-	stringstream name;
+	std::stringstream name;
 	name << "OBS " << App()->GetVersionString();
 	blog(LOG_INFO, "%s", name.str().c_str());
 	blog(LOG_INFO, "---------------------------------");
@@ -443,7 +443,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
-			    vector<OBSSource> &audioSources)
+			    std::vector<OBSSource> &audioSources)
 {
 	obs_source_t *source = obs_get_output_source(channel);
 	if (!source)
@@ -468,7 +468,7 @@ static obs_data_t *GenerateSaveData(obs_data_array_t *sceneOrder,
 {
 	obs_data_t *saveData = obs_data_create();
 
-	vector<OBSSource> audioSources;
+	std::vector<OBSSource> audioSources;
 	audioSources.reserve(6);
 
 	SaveAudioDevice(DESKTOP_AUDIO_1, 1, saveData, audioSources);
@@ -860,7 +860,7 @@ static void LogFilter(obs_source_t *, obs_source_t *filter, void *v_val)
 	const char *name = obs_source_get_name(filter);
 	const char *id = obs_source_get_id(filter);
 	int val = (int)(intptr_t)v_val;
-	string indent;
+	std::string indent;
 
 	for (int i = 0; i < val; i++)
 		indent += "    ";
@@ -874,7 +874,7 @@ static bool LogSceneItem(obs_scene_t *, obs_sceneitem_t *item, void *v_val)
 	const char *name = obs_source_get_name(source);
 	const char *id = obs_source_get_id(source);
 	int indent_count = (int)(intptr_t)v_val;
-	string indent;
+	std::string indent;
 
 	for (int i = 0; i < indent_count; i++)
 		indent += "    ";
@@ -1717,7 +1717,8 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+	ret = snprintf(fileName, 512,
+		       "light-studio/obs-studio/basic/scenes/%s.json",
 		       sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
@@ -2711,7 +2712,8 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+	ret = snprintf(fileName, 512,
+		       "light-studio/obs-studio/basic/scenes/%s.json",
 		       sceneCollection);
 	if (ret <= 0)
 		return;
@@ -3205,7 +3207,7 @@ void OBSBasic::MixerRenameSource()
 	const char *prevName = obs_source_get_name(source);
 
 	for (;;) {
-		string name;
+		std::string name;
 		bool accepted = NameDialog::AskForName(
 			this, QTStr("Basic.Main.MixerRename.Title"),
 			QTStr("Basic.Main.MixerRename.Text"), name,
@@ -3424,7 +3426,7 @@ void OBSBasic::ToggleVolControlLayout()
 
 	// We need to store it so we can delete current and then add
 	// at the right order
-	vector<OBSSource> sources;
+	std::vector<OBSSource> sources;
 	for (size_t i = 0; i != volumes.size(); i++)
 		sources.emplace_back(volumes[i]->GetSource());
 
@@ -3609,7 +3611,7 @@ void OBSBasic::DuplicateSelectedScene()
 	}
 
 	for (;;) {
-		string name;
+		std::string name;
 		bool accepted = NameDialog::AskForName(
 			this, QTStr("Basic.Main.AddSceneDlg.Title"),
 			QTStr("Basic.Main.AddSceneDlg.Text"), name,
@@ -4821,7 +4823,7 @@ void OBSBasic::GridActionClicked()
 
 void OBSBasic::on_actionAddScene_triggered()
 {
-	string name;
+	std::string name;
 	QString format{QTStr("Basic.Main.DefaultSceneName.Text")};
 
 	int i = 2;
@@ -5067,7 +5069,7 @@ QMenu *OBSBasic::AddBackgroundColorMenu(QMenu *menu,
 	widgetAction->setDefaultWidget(select);
 
 	for (int i = 1; i < 9; i++) {
-		stringstream button;
+		std::stringstream button;
 		button << "preset" << i;
 		QPushButton *colorButton =
 			select->findChild<QPushButton *>(button.str().c_str());
@@ -5422,8 +5424,8 @@ void OBSBasic::on_actionAddSource_triggered()
 
 static bool remove_items(obs_scene_t *, obs_sceneitem_t *item, void *param)
 {
-	vector<OBSSceneItem> &items =
-		*reinterpret_cast<vector<OBSSceneItem> *>(param);
+	std::vector<OBSSceneItem> &items =
+		*reinterpret_cast<std::vector<OBSSceneItem> *>(param);
 
 	if (obs_sceneitem_selected(item)) {
 		items.emplace_back(item);
@@ -5510,7 +5512,7 @@ void OBSBasic::CreateSceneUndoRedoAction(const QString &action_name,
 
 void OBSBasic::on_actionRemoveSource_triggered()
 {
-	vector<OBSSceneItem> items;
+	std::vector<OBSSceneItem> items;
 	OBSScene scene = GetCurrentScene();
 	obs_source_t *scene_source = obs_scene_get_source(scene);
 
@@ -5652,7 +5654,7 @@ static BPtr<char> ReadLogFile(const char *subdir, const char *log)
 	if (GetConfigPath(logDir, sizeof(logDir), subdir) <= 0)
 		return nullptr;
 
-	string path = logDir;
+	std::string path = logDir;
 	path += "/";
 	path += log;
 
@@ -5678,7 +5680,7 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 	ui->menuCrashLogs->setEnabled(false);
 #endif
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << "OBS " << App()->GetVersionString() << " log file uploaded at "
 	   << CurrentDateTimeString() << "\n\n"
 	   << fileString;
@@ -5705,7 +5707,8 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 void OBSBasic::on_actionShowLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  "light-studio/obs-studio/logs") <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5714,12 +5717,13 @@ void OBSBasic::on_actionShowLogs_triggered()
 
 void OBSBasic::on_actionUploadCurrentLog_triggered()
 {
-	UploadLog("obs-studio/logs", App()->GetCurrentLog(), false);
+	UploadLog("light-studio/obs-studio/logs", App()->GetCurrentLog(),
+		  false);
 }
 
 void OBSBasic::on_actionUploadLastLog_triggered()
 {
-	UploadLog("obs-studio/logs", App()->GetLastLog(), false);
+	UploadLog("light-studio/obs-studio/logs", App()->GetLastLog(), false);
 }
 
 void OBSBasic::on_actionViewCurrentLog_triggered()
@@ -5741,7 +5745,8 @@ void OBSBasic::on_actionViewCurrentLog_triggered()
 void OBSBasic::on_actionShowCrashLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/crashes") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  "light-studio/obs-studio/crashes") <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5750,7 +5755,8 @@ void OBSBasic::on_actionShowCrashLogs_triggered()
 
 void OBSBasic::on_actionUploadLastCrashLog_triggered()
 {
-	UploadLog("obs-studio/crashes", App()->GetLastCrashLog(), true);
+	UploadLog("light-studio/obs-studio/crashes", App()->GetLastCrashLog(),
+		  true);
 }
 
 void OBSBasic::on_actionCheckForUpdates_triggered()
@@ -5794,7 +5800,7 @@ void OBSBasic::openLogDialog(const QString &text, const bool crash)
 {
 
 	obs_data_t *returnData = obs_data_create_from_json(QT_TO_UTF8(text));
-	string resURL = obs_data_get_string(returnData, "url");
+	std::string resURL = obs_data_get_string(returnData, "url");
 	QString logURL = resURL.c_str();
 	obs_data_release(returnData);
 
@@ -5803,7 +5809,7 @@ void OBSBasic::openLogDialog(const QString &text, const bool crash)
 }
 
 static void RenameListItem(OBSBasic *parent, QListWidget *listWidget,
-			   obs_source_t *source, const string &name)
+			   obs_source_t *source, const std::string &name)
 {
 	const char *prevName = obs_source_get_name(source);
 	if (name == prevName)
@@ -5858,7 +5864,7 @@ void OBSBasic::SceneNameEdited(QWidget *editor,
 {
 	OBSScene scene = GetCurrentScene();
 	QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
-	string text = QT_TO_UTF8(edit->text().trimmed());
+	std::string text = QT_TO_UTF8(edit->text().trimmed());
 
 	if (!scene)
 		return;
@@ -6877,7 +6883,7 @@ void OBSBasic::on_actionDiscord_triggered()
 void OBSBasic::on_actionShowSettingsFolder_triggered()
 {
 	char path[512];
-	int ret = GetConfigPath(path, 512, "obs-studio");
+	int ret = GetConfigPath(path, 512, "light-studio/obs-studio");
 	if (ret <= 0)
 		return;
 
@@ -7902,7 +7908,7 @@ void OBSBasic::on_actionFullscreenInterface_triggered()
 
 void OBSBasic::UpdateTitleBar()
 {
-	stringstream name;
+	std::stringstream name;
 
 	const char *profile =
 		config_get_string(App()->GlobalConfig(), "Basic", "Profile");
@@ -7937,7 +7943,8 @@ int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
 	if (!file)
 		file = "";
 
-	ret = GetConfigPath(profiles_path, 512, "obs-studio/basic/profiles");
+	ret = GetConfigPath(profiles_path, 512,
+			    "light-studio/obs-studio/basic/profiles");
 	if (ret <= 0)
 		return ret;
 
@@ -8578,7 +8585,7 @@ void OBSBasic::ColorChange()
 		}
 
 		for (int i = 1; i < 9; i++) {
-			stringstream button;
+			std::stringstream button;
 			button << "preset" << i;
 			QPushButton *cButton =
 				colorButton->parentWidget()
