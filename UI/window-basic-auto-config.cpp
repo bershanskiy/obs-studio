@@ -70,17 +70,23 @@ AutoConfigStartPage::AutoConfigStartPage(QWidget *parent)
 	setTitle(QTStr("Basic.AutoConfig.StartPage"));
 	setSubTitle(QTStr("Basic.AutoConfig.StartPage.SubTitle"));
 
+	QBoxLayout *box = reinterpret_cast<QBoxLayout *>(layout());
 	OBSBasic *main = OBSBasic::Get();
 	if (main->VCamEnabled()) {
 		QRadioButton *prioritizeVCam = new QRadioButton(
 			QTStr("Basic.AutoConfig.StartPage.PrioritizeVirtualCam"),
 			this);
-		QBoxLayout *box = reinterpret_cast<QBoxLayout *>(layout());
 		box->insertWidget(2, prioritizeVCam);
 
 		connect(prioritizeVCam, &QPushButton::clicked, this,
 			&AutoConfigStartPage::PrioritizeVCam);
 	}
+	QCheckBox *setupLightboard = new QCheckBox(
+		QTStr("Basic.AutoConfig.StartPage.SetupLightboard"), this);
+	box->insertWidget(2, setupLightboard);
+
+	connect(setupLightboard, &QCheckBox::clicked, this,
+		&AutoConfigStartPage::SetupLightboardToggle);
 }
 
 AutoConfigStartPage::~AutoConfigStartPage()
@@ -108,6 +114,12 @@ void AutoConfigStartPage::on_prioritizeRecording_clicked()
 void AutoConfigStartPage::PrioritizeVCam()
 {
 	wiz->type = AutoConfig::Type::VirtualCam;
+}
+
+void AutoConfigStartPage::SetupLightboardToggle()
+{
+	// TODO: simplify
+	wiz->setupLightboard = !wiz->setupLightboard;
 }
 
 /* ------------------------------------------------------------------------- */
