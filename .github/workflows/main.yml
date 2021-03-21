@@ -5,14 +5,14 @@ on:
     paths-ignore:
       - '**.md'
     branches:
-      - master
+      - '*' # Test on push to every branch
     tags:
       - '*'
   pull_request:
     paths-ignore:
       - '**.md'
     branches:
-      - master
+      - '*' # Test on PR from every branch
 
 env:
   MACOS_CEF_BUILD_VERSION: '4183'
@@ -322,6 +322,7 @@ jobs:
         with:
           name: '${{ env.FILE_NAME }}'
           path: ./nightly/*.dmg
+          retention-days: 1
       - name: 'Package Release'
         if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' && env.HAVE_CODESIGN_IDENTITY == 'true'
         working-directory: ${{ github.workspace }}/build
@@ -350,6 +351,7 @@ jobs:
         with:
           name: '${{ env.RELEASE_FILE_NAME }}'
           path: ./release/*.dmg
+          retention-days: 1
   ubuntu64:
     name: 'Linux/Ubuntu 64-bit'
     runs-on: [ubuntu-18.04]
@@ -471,6 +473,7 @@ jobs:
         with:
           name: '${{ env.FILE_NAME }}'
           path: './nightly/*.tar.gz'
+          retention-days: 1
   win64:
     name: 'Windows 64-bit'
     runs-on: [windows-latest]
@@ -581,6 +584,7 @@ jobs:
         with:
           name: '${{ env.FILE_NAME }}'
           path: '*-win64.zip'
+          retention-days: 1
   win32:
     name: 'Windows 32-bit'
     runs-on: [windows-latest]
@@ -690,3 +694,4 @@ jobs:
         with:
           name: '${{ env.FILE_NAME }}'
           path: '*-win32.zip'
+          retention-days: 1
