@@ -353,6 +353,7 @@ set(obs_UI
 	forms/source-toolbar/text-source-toolbar.ui
 	forms/source-toolbar/media-controls.ui
 	forms/AutoConfigStartPage.ui
+	forms/AutoConfigLightboardPage.ui
 	forms/AutoConfigVideoPage.ui
 	forms/AutoConfigStreamPage.ui
 	forms/AutoConfigTestPage.ui
