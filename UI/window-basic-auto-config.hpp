@@ -17,6 +17,7 @@ class Ui_AutoConfigStartPage;
 class Ui_AutoConfigVideoPage;
 class Ui_AutoConfigStreamPage;
 class Ui_AutoConfigTestPage;
+class Ui_AutoConfigLightboardPage;
 
 class AutoConfigStreamPage;
 class Auth;
@@ -28,6 +29,7 @@ class AutoConfig : public QWizard {
 	friend class AutoConfigVideoPage;
 	friend class AutoConfigStreamPage;
 	friend class AutoConfigTestPage;
+	friend class AutoConfigLightboardPage;
 
 	enum class Type {
 		Invalid,
@@ -111,6 +113,7 @@ class AutoConfig : public QWizard {
 
 	void SaveStreamSettings();
 	void SaveSettings();
+	void CreateLightboardScene();
 
 public:
 	AutoConfig(QWidget *parent);
@@ -121,6 +124,7 @@ public:
 		VideoPage,
 		StreamPage,
 		TestPage,
+		LightboardPage,
 	};
 };
 
@@ -140,7 +144,7 @@ public:
 public slots:
 	void on_prioritizeStreaming_clicked();
 	void on_prioritizeRecording_clicked();
-	void SetupLightboardToggle();
+	void on_setupLightboard_clicked();
 	void PrioritizeVCam();
 };
 
@@ -157,6 +161,20 @@ public:
 
 	virtual int nextId() const override;
 	virtual bool validatePage() override;
+};
+
+class AutoConfigLightboardPage : public QWizardPage {
+	Q_OBJECT
+
+	friend class AutoConfig;
+
+	Ui_AutoConfigLightboardPage *ui;
+
+public:
+	AutoConfigLightboardPage(QWidget *parent = nullptr);
+	~AutoConfigLightboardPage();
+
+	virtual int nextId() const override;
 };
 
 class AutoConfigStreamPage : public QWizardPage {

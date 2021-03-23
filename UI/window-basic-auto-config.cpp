@@ -12,6 +12,7 @@
 #include "ui_AutoConfigStartPage.h"
 #include "ui_AutoConfigVideoPage.h"
 #include "ui_AutoConfigStreamPage.h"
+#include "ui_AutoConfigLightboardPage.h"
 
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>
@@ -75,23 +76,20 @@ AutoConfigStartPage::AutoConfigStartPage(QWidget *parent)
 	setTitle(QTStr("Basic.AutoConfig.StartPage"));
 	setSubTitle(QTStr("Basic.AutoConfig.StartPage.SubTitle"));
 
-	QBoxLayout *box = reinterpret_cast<QBoxLayout *>(layout());
 	OBSBasic *main = OBSBasic::Get();
 	if (main->VCamEnabled()) {
 		QRadioButton *prioritizeVCam = new QRadioButton(
 			QTStr("Basic.AutoConfig.StartPage.PrioritizeVirtualCam"),
 			this);
+		QBoxLayout *box = reinterpret_cast<QBoxLayout *>(layout());
 		box->insertWidget(2, prioritizeVCam);
 
 		connect(prioritizeVCam, &QPushButton::clicked, this,
 			&AutoConfigStartPage::PrioritizeVCam);
 	}
-	QCheckBox *setupLightboard = new QCheckBox(
-		QTStr("Basic.AutoConfig.StartPage.SetupLightboard"), this);
-	box->insertWidget(2, setupLightboard);
 
-	connect(setupLightboard, &QCheckBox::clicked, this,
-		&AutoConfigStartPage::SetupLightboardToggle);
+	// Ensure the checkbox and internal bool mactch
+	ui->setupLightboard->setChecked(false);
 }
 
 AutoConfigStartPage::~AutoConfigStartPage()
@@ -101,6 +99,10 @@ AutoConfigStartPage::~AutoConfigStartPage()
 
 int AutoConfigStartPage::nextId() const
 {
+	// Shim in Lightboard source selection page
+	if (wiz->setupLightboard)
+		return AutoConfig::LightboardPage;
+
 	return wiz->type == AutoConfig::Type::VirtualCam
 		       ? AutoConfig::TestPage
 		       : AutoConfig::VideoPage;
@@ -121,10 +123,35 @@ void AutoConfigStartPage::PrioritizeVCam()
 	wiz->type = AutoConfig::Type::VirtualCam;
 }
 
-void AutoConfigStartPage::SetupLightboardToggle()
+void AutoConfigStartPage::on_setupLightboard_clicked()
 {
 	// TODO: simplify
 	wiz->setupLightboard = !wiz->setupLightboard;
+}
+
+/* ------------------------------------------------------------------------- */
+
+AutoConfigLightboardPage::AutoConfigLightboardPage(QWidget *parent)
+	: QWizardPage(parent), ui(new Ui_AutoConfigLightboardPage)
+{
+	ui->setupUi(this);
+
+	setTitle("Настроить Lightboard");
+	setSubTitle(
+		"Выберете камеру, направленную на Lightboard, и Ваш микрофон, если Вы хотите использовать микрофон отдельный от камеры.");
+}
+
+// Copy of the original AutoConfigStartPage::nextId()
+int AutoConfigLightboardPage::nextId() const
+{
+	return wiz->type == AutoConfig::Type::VirtualCam
+		       ? AutoConfig::TestPage
+		       : AutoConfig::VideoPage;
+}
+
+AutoConfigLightboardPage::~AutoConfigLightboardPage()
+{
+	delete ui;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -889,6 +916,7 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
 	setPage(VideoPage, new AutoConfigVideoPage());
 	setPage(StreamPage, streamPage);
 	setPage(TestPage, new AutoConfigTestPage());
+	setPage(LightboardPage, new AutoConfigLightboardPage());
 	setWindowTitle(QTStr("Basic.AutoConfig"));
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -1046,6 +1074,8 @@ void AutoConfig::done(int result)
 	if (result == QDialog::Accepted) {
 		if (type == Type::Streaming)
 			SaveStreamSettings();
+		if (setupLightboard)
+			CreateLightboardScene();
 		SaveSettings();
 	}
 }
@@ -1136,4 +1166,51 @@ void AutoConfig::SaveSettings()
 	main->ResetVideo();
 	main->ResetOutputs();
 	config_save_safe(main->Config(), "tmp", nullptr);
+}
+
+void AutoConfig::CreateLightboardScene()
+{
+	// Returns true if the checne has any items within it,
+	// false otherwise.
+	auto sceneHasItems = [](OBSScene scene) {
+		bool hasItems = false;
+		auto func = [](obs_scene_t *scene, obs_sceneitem_t *item,
+			       void *param) {
+			bool *hasItems = reinterpret_cast<bool *>(param);
+			*hasItems = true;
+
+			UNUSED_PARAMETER(scene);
+			UNUSED_PARAMETER(item);
+			return false;
+		};
+		obs_scene_enum_items(scene, func, &hasItems);
+
+		return hasItems;
+	};
+
+	// Ensure that the current scene is empty or create a new one
+	OBSBasic *main = reinterpret_cast<OBSBasic *>(App()->GetMainWindow());
+	OBSScene scene = main->GetCurrentScene();
+	// If the curren scene has any items already, create a new one
+	// specifically for the Lightboard.
+	if (sceneHasItems(scene)) {
+
+		std::string name = "Lightboard scene";
+		for (int i = 1; i <= 100; i++) {
+			obs_source_t *source =
+				obs_get_source_by_name(name.c_str());
+
+			// This name is vacant!
+			if (!source)
+				break;
+
+			// A scene with this name already exists
+			// let's look for a new one.
+			obs_source_release(source);
+			name = "Lightboard scene " + std::to_string(i);
+		}
+
+		scene = obs_scene_create(name.c_str());
+	}
+	//source = obs_scene_get_source(scene);
 }
