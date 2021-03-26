@@ -205,8 +205,10 @@ obs_properties_t *obs_properties_create(void)
 void obs_properties_set_param(obs_properties_t *props, void *param,
 			      void (*destroy)(void *param))
 {
-	if (!props)
+	if (!props) {
+		blog(LOG_WARNING, "This function requires the first argument");
 		return;
+	}
 
 	if (props->param && props->destroy)
 		props->destroy(props->param);
@@ -289,8 +291,10 @@ obs_property_t *obs_properties_get(obs_properties_t *props, const char *name)
 {
 	struct obs_property *property;
 
-	if (!props)
+	if (!props) {
+		blog(LOG_WARNING, "This function requires the first argument");
 		return NULL;
+	}
 
 	property = props->first_property;
 	while (property) {
@@ -319,8 +323,10 @@ obs_properties_t *obs_properties_get_parent(obs_properties_t *props)
 
 void obs_properties_remove_by_name(obs_properties_t *props, const char *name)
 {
-	if (!props)
+	if (!props) {
+		blog(LOG_WARNING, "This function requires the first argument");
 		return;
+	}
 
 	/* obs_properties_t is a forward-linked-list, so we need to keep both
 	 * previous and current pointers around. That way we can fix up the
@@ -394,8 +400,10 @@ void obs_properties_apply_settings_internal(obs_properties_t *props,
 void obs_properties_apply_settings(obs_properties_t *props,
 				   obs_data_t *settings)
 {
-	if (!props)
+	if (!props) {
+		blog(LOG_WARNING, "This function requires the first argument");
 		return;
+	}
 
 	obs_properties_apply_settings_internal(props, settings, props);
 }
@@ -511,8 +519,10 @@ static inline void *get_property_data(struct obs_property *prop)
 static inline void *get_type_data(struct obs_property *prop,
 				  enum obs_property_type type)
 {
-	if (!prop || prop->type != type)
+	if (!prop || prop->type != type) {
+		blog(LOG_WARNING, "Invalid first argument");
 		return NULL;
+	}
 
 	return get_property_data(prop);
 }
@@ -520,8 +530,10 @@ static inline void *get_type_data(struct obs_property *prop,
 obs_property_t *obs_properties_add_bool(obs_properties_t *props,
 					const char *name, const char *desc)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid first argument");
 		return NULL;
+	}
 	return new_prop(props, name, desc, OBS_PROPERTY_BOOL);
 }
 
@@ -529,8 +541,10 @@ static obs_property_t *add_int(obs_properties_t *props, const char *name,
 			       const char *desc, int min, int max, int step,
 			       enum obs_number_type type)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p = new_prop(props, name, desc, OBS_PROPERTY_INT);
 	struct int_data *data = get_property_data(p);
@@ -545,8 +559,10 @@ static obs_property_t *add_flt(obs_properties_t *props, const char *name,
 			       const char *desc, double min, double max,
 			       double step, enum obs_number_type type)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p =
 		new_prop(props, name, desc, OBS_PROPERTY_FLOAT);
@@ -592,8 +608,10 @@ obs_property_t *obs_properties_add_text(obs_properties_t *props,
 					const char *name, const char *desc,
 					enum obs_text_type type)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p = new_prop(props, name, desc, OBS_PROPERTY_TEXT);
 	struct text_data *data = get_property_data(p);
@@ -607,8 +625,10 @@ obs_property_t *obs_properties_add_path(obs_properties_t *props,
 					const char *filter,
 					const char *default_path)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p = new_prop(props, name, desc, OBS_PROPERTY_PATH);
 	struct path_data *data = get_property_data(p);
@@ -626,8 +646,10 @@ obs_property_t *obs_properties_add_list(obs_properties_t *props,
 					enum obs_combo_type type,
 					enum obs_combo_format format)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	if (type == OBS_COMBO_TYPE_EDITABLE &&
 	    format != OBS_COMBO_FORMAT_STRING) {
@@ -649,8 +671,10 @@ obs_property_t *obs_properties_add_list(obs_properties_t *props,
 obs_property_t *obs_properties_add_color(obs_properties_t *props,
 					 const char *name, const char *desc)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 	return new_prop(props, name, desc, OBS_PROPERTY_COLOR);
 }
 
@@ -658,8 +682,10 @@ obs_property_t *obs_properties_add_color_alpha(obs_properties_t *props,
 					       const char *name,
 					       const char *desc)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 	return new_prop(props, name, desc, OBS_PROPERTY_COLOR_ALPHA);
 }
 
@@ -667,8 +693,10 @@ obs_property_t *obs_properties_add_button(obs_properties_t *props,
 					  const char *name, const char *text,
 					  obs_property_clicked_t callback)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p =
 		new_prop(props, name, text, OBS_PROPERTY_BUTTON);
@@ -682,8 +710,10 @@ obs_property_t *obs_properties_add_button2(obs_properties_t *props,
 					   obs_property_clicked_t callback,
 					   void *priv)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p =
 		new_prop(props, name, text, OBS_PROPERTY_BUTTON);
@@ -696,8 +726,10 @@ obs_property_t *obs_properties_add_button2(obs_properties_t *props,
 obs_property_t *obs_properties_add_font(obs_properties_t *props,
 					const char *name, const char *desc)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 	return new_prop(props, name, desc, OBS_PROPERTY_FONT);
 }
 
@@ -707,8 +739,10 @@ obs_properties_add_editable_list(obs_properties_t *props, const char *name,
 				 enum obs_editable_list_type type,
 				 const char *filter, const char *default_path)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 	struct obs_property *p =
 		new_prop(props, name, desc, OBS_PROPERTY_EDITABLE_LIST);
 
@@ -723,8 +757,10 @@ obs_property_t *obs_properties_add_frame_rate(obs_properties_t *props,
 					      const char *name,
 					      const char *desc)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_WARNING, "Invalid arguments");
 		return NULL;
+	}
 
 	struct obs_property *p =
 		new_prop(props, name, desc, OBS_PROPERTY_FRAME_RATE);
@@ -782,20 +818,32 @@ obs_property_t *obs_properties_add_group(obs_properties_t *props,
 					 enum obs_group_type type,
 					 obs_properties_t *group)
 {
-	if (!props || has_prop(props, name))
+	if (!props || has_prop(props, name)) {
+		blog(LOG_ERROR, "The fifth argument can not be NULL");
 		return NULL;
-	if (!group)
+	}
+	if (!group) {
+		blog(LOG_ERROR, "The fifth argument can not be NULL");
 		return NULL;
+	}
 
 	/* Prevent recursion. */
-	if (props == group)
+	if (props == group) {
+		blog(LOG_ERROR,
+		     "The first and the fifth arguments can not be the same");
 		return NULL;
-	if (check_property_group_recursion(props, group))
+	}
+	if (check_property_group_recursion(props, group)) {
+		blog(LOG_ERROR,
+		     "This would create a cycle in the propery graph");
 		return NULL;
+	}
 
 	/* Prevent duplicate properties */
-	if (check_property_group_duplicates(props, group))
+	if (check_property_group_duplicates(props, group)) {
+		blog(LOG_ERROR, "Property '%s' already exists", name);
 		return NULL;
+	}
 
 	obs_property_t *p = new_prop(props, name, desc, OBS_PROPERTY_GROUP);
 	group->parent = p;
@@ -815,8 +863,10 @@ static inline bool is_combo(struct obs_property *p)
 
 static inline struct list_data *get_list_data(struct obs_property *p)
 {
-	if (!p || !is_combo(p))
+	if (!p || !is_combo(p)) {
+		blog(LOG_ERROR, "The argument is not valid");
 		return NULL;
+	}
 
 	return get_property_data(p);
 }
@@ -832,8 +882,10 @@ static inline struct list_data *get_list_fmt_data(struct obs_property *p,
 
 bool obs_property_next(obs_property_t **p)
 {
-	if (!p || !*p)
+	if (!p || !*p) {
+		blog(LOG_ERROR, "The argument is not valid");
 		return false;
+	}
 
 	*p = (*p)->next;
 	return *p != NULL;
@@ -1053,8 +1105,10 @@ enum obs_combo_format obs_property_list_format(obs_property_t *p)
 void obs_property_int_set_limits(obs_property_t *p, int min, int max, int step)
 {
 	struct int_data *data = get_type_data(p, OBS_PROPERTY_INT);
-	if (!data)
+	if (!data) {
+		blog(LOG_ERROR, "Such property does not exist");
 		return;
+	}
 
 	data->min = min;
 	data->max = max;
@@ -1065,8 +1119,10 @@ void obs_property_float_set_limits(obs_property_t *p, double min, double max,
 				   double step)
 {
 	struct float_data *data = get_type_data(p, OBS_PROPERTY_FLOAT);
-	if (!data)
+	if (!data) {
+		blog(LOG_ERROR, "Such property does not exist");
 		return;
+	}
 
 	data->min = min;
 	data->max = max;
@@ -1076,8 +1132,10 @@ void obs_property_float_set_limits(obs_property_t *p, double min, double max,
 void obs_property_int_set_suffix(obs_property_t *p, const char *suffix)
 {
 	struct int_data *data = get_type_data(p, OBS_PROPERTY_INT);
-	if (!data)
+	if (!data) {
+		blog(LOG_ERROR, "Such property does not exist");
 		return;
+	}
 
 	bfree(data->suffix);
 	data->suffix = bstrdup(suffix);
@@ -1086,8 +1144,10 @@ void obs_property_int_set_suffix(obs_property_t *p, const char *suffix)
 void obs_property_float_set_suffix(obs_property_t *p, const char *suffix)
 {
 	struct float_data *data = get_type_data(p, OBS_PROPERTY_FLOAT);
-	if (!data)
+	if (!data) {
+		blog(LOG_ERROR, "Such property does not exist");
 		return;
+	}
 
 	bfree(data->suffix);
 	data->suffix = bstrdup(suffix);
@@ -1096,8 +1156,10 @@ void obs_property_float_set_suffix(obs_property_t *p, const char *suffix)
 void obs_property_text_set_monospace(obs_property_t *p, bool monospace)
 {
 	struct text_data *data = get_type_data(p, OBS_PROPERTY_TEXT);
-	if (!data)
+	if (!data) {
+		blog(LOG_ERROR, "Such property does not exist");
 		return;
+	}
 
 	data->monospace = monospace;
 }
