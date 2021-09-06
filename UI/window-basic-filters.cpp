@@ -36,8 +36,6 @@
 #include <QMenu>
 #include <QVariant>
 
-using namespace std;
-
 Q_DECLARE_METATYPE(OBSSource);
 
 OBSBasicFilters::OBSBasicFilters(QWidget *parent, OBSSource source_)
@@ -470,8 +468,8 @@ QMenu *OBSBasicFilters::CreateAddFilterPopupMenu(bool async)
 	size_t idx = 0;
 
 	struct FilterInfo {
-		string type;
-		string name;
+		std::string type;
+		std::string name;
 
 		inline FilterInfo(const char *type_, const char *name_)
 			: type(type_), name(name_)
@@ -479,7 +477,7 @@ QMenu *OBSBasicFilters::CreateAddFilterPopupMenu(bool async)
 		}
 	};
 
-	vector<FilterInfo> types;
+	std::vector<FilterInfo> types;
 	while (obs_enum_filter_types(idx++, &type_str)) {
 		const char *name = obs_source_get_display_name(type_str);
 		uint32_t caps = obs_get_source_output_flags(type_str);
@@ -530,7 +528,7 @@ void OBSBasicFilters::AddNewFilter(const char *id)
 {
 	if (id && *id) {
 		obs_source_t *existing_filter;
-		string name = obs_source_get_display_name(id);
+		std::string name = obs_source_get_display_name(id);
 
 		QString placeholder = QString::fromStdString(name);
 		QString text{placeholder};
@@ -716,8 +714,8 @@ void OBSBasicFilters::DrawPreview(void *data, uint32_t cx, uint32_t cy)
 	if (!window->source)
 		return;
 
-	uint32_t sourceCX = max(obs_source_get_width(window->source), 1u);
-	uint32_t sourceCY = max(obs_source_get_height(window->source), 1u);
+	uint32_t sourceCX = std::max(obs_source_get_width(window->source), 1u);
+	uint32_t sourceCY = std::max(obs_source_get_height(window->source), 1u);
 
 	int x, y;
 	int newCX, newCY;
@@ -942,7 +940,7 @@ void OBSBasicFilters::EditItem(QListWidgetItem *item, bool async)
 void OBSBasicFilters::DuplicateItem(QListWidgetItem *item)
 {
 	OBSSource filter = item->data(Qt::UserRole).value<OBSSource>();
-	string name = obs_source_get_name(filter);
+	std::string name = obs_source_get_name(filter);
 	obs_source_t *existing_filter;
 
 	QString placeholder = QString::fromStdString(name);
@@ -1028,7 +1026,7 @@ void OBSBasicFilters::FilterNameEdited(QWidget *editor, QListWidget *list)
 	QListWidgetItem *listItem = list->currentItem();
 	OBSSource filter = listItem->data(Qt::UserRole).value<OBSSource>();
 	QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
-	string name = QT_TO_UTF8(edit->text().trimmed());
+	std::string name = QT_TO_UTF8(edit->text().trimmed());
 
 	const char *prevName = obs_source_get_name(filter);
 	bool sameName = (name == prevName);

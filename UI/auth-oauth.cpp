@@ -14,7 +14,7 @@
 
 #include <json11.hpp>
 
-using namespace json11;
+using json11::Json;
 
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>

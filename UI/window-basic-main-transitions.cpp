@@ -29,8 +29,6 @@
 
 #include "obs-hotkey.h"
 
-using namespace std;
-
 Q_DECLARE_METATYPE(OBSScene);
 Q_DECLARE_METATYPE(OBSSource);
 Q_DECLARE_METATYPE(QuickTransition);
@@ -511,7 +509,7 @@ void OBSBasic::AddTransition(QString id)
 	if (id.isEmpty())
 		return;
 
-	string name;
+	std::string name;
 	QString placeHolderText =
 		QT_UTF8(obs_source_get_display_name(QT_TO_UTF8(id)));
 	QString format = placeHolderText + " (%1)";
@@ -612,7 +610,7 @@ void OBSBasic::RenameTransition()
 	QVariant variant = action->property("transition");
 	obs_source_t *transition = variant.value<OBSSource>();
 
-	string name;
+	std::string name;
 	QString placeHolderText = QT_UTF8(obs_source_get_name(transition));
 	obs_source_t *source = nullptr;
 
